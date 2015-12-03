@@ -346,7 +346,7 @@ class LibFtdi(serial.FileLike):
 
     def read(self, size=1):
         s = c.create_string_buffer(size)
-        ret = ""
+        ret = b""
         starttime = time.time()
         while self._timeout == 0 or time.time() - starttime < self._timeout:
             read = ftdi.ftdi_read_data(self._context, s,

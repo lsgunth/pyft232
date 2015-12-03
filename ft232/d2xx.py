@@ -109,7 +109,7 @@ class D2xx(serial.FileLike):
                  writeTimeout=10):
         self._isopen = False
         self.portstr = port
-        serial = c.create_string_buffer(port)
+        serial = c.create_string_buffer(port.encode())
         self.handle = c.c_void_p()
         status = d2xx.FT_OpenEx(serial, FT_OPEN_BY_SERIAL_NUMBER,
                                 c.byref(self.handle))
