@@ -24,7 +24,7 @@ except ft232.Ft232Exception:
     sys.exit(1)
 
 #You may use sp as you would a Serial object
-sp.write("Hello World!\n")
+sp.write(b"Hello World!\n")
 resp = sp.read(100)
 
 #If you want to use the CBUS pins, you enable them with cbus_setup
