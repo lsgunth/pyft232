@@ -34,6 +34,10 @@ for lib in ("libftdi.so", "libftdi.so.1"):
 VENDOR = 0x0403
 PRODUCT = 0x6001
 
+ftdi.ftdi_new.restype = c.c_void_p
+ftdi.ftdi_usb_open_desc.argtypes = [c.c_void_p, c.c_int, c.c_int,
+                                    c.c_char_p, c.c_char_p]
+
 SIO_DISABLE_FLOW_CTRL = 0x0
 SIO_RTS_CTS_HS = (0x1 << 8)
 SIO_DTR_DSR_HS = (0x2 << 8)
@@ -114,6 +118,7 @@ class LibFtdi(io.RawIOBase):
 
         self._context = ftdi.ftdi_new()
         self._struct = FtdiContext.from_address(self._context)
+        self._context = c.c_void_p(self._context)
 
         if self._context == 0:
             raise LibFtdiException(self._context)
