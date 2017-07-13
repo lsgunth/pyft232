@@ -23,9 +23,9 @@ except ImportError:
 
 setup(name='pyft232',
       version='0.6',
-      description="""Python bindings to d2xx and libftdi to access FT232 chips with
-                     the same interface as pyserial. Using this method gives easy access
-                     to the additional features on the chip like CBUS GPIO.""",
+      description="Python bindings to d2xx and libftdi to access FT232 chips with "
+      "the same interface as pyserial. Using this method gives easy access "
+      "to the additional features on the chip like CBUS GPIO.",
       long_description=open('README.md', 'rt').read(),
       author='Logan Gunthorpe',
       author_email='logang@deltatee.com',
