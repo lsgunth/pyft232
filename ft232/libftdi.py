@@ -78,7 +78,7 @@ class FtdiContext(c.Structure):
 
 class LibFtdiException(Exception):
     def __init__(self, context):
-        self.msg = c.c_char_p(ftdi.ftdi_get_error_string(context)).value
+        self.msg = ftdi.ftdi_get_error_string(context)
 
     def __str__(self):
         return self.msg
