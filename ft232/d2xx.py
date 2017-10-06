@@ -26,7 +26,7 @@ from serial import (FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS, PARITY_NONE,
 try:
     d2xx = c.windll.ftd2xx
 except AttributeError:
-    d2xx = c.cdll.ftd2xx
+    d2xx = c.cdll.LoadLibrary("libftd2xx.so")
 
 
 FT_OK = 0
