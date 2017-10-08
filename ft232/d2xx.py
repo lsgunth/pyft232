@@ -17,16 +17,22 @@
 # License along with this library.
 #
 
+import platform
 import io
 import ctypes as c
 import serial
 from serial import (FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS, PARITY_NONE,
                     PARITY_EVEN, PARITY_ODD, STOPBITS_ONE, STOPBITS_TWO)
 
-try:
-    d2xx = c.windll.ftd2xx
-except AttributeError:
-    d2xx = c.cdll.ftd2xx
+if platform.system().startswith("Windows"):
+    try:
+        d2xx = c.windll.ftd2xx
+    except AttributeError:
+        d2xx = c.cdll.ftd2xx
+elif platform.system().startswith("Linux"):
+    d2xx = c.cdll.LoadLibrary("libftd2xx.so")
+elif platform.system().startswith("Darwin"):
+    d2xx = c.cdll.LoadLibrary("libftd2xx.dylib")
 
 
 FT_OK = 0
