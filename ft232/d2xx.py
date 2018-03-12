@@ -154,6 +154,18 @@ class D2xx(io.RawIOBase):
         d2xx.FT_Close(self.handle)
         self._isopen = False
 
+    def getPortName(self):
+        """Get the current COM port or None if not available."""
+        # TODO: provide equivalent functionality for Linux and Darwin
+        c_port = c.c_ulong()
+        status = d2xx.FT_GetComPortNumber(self.handle, c.byref(c_port))
+        if status != FT_OK: raise D2XXException(status)
+        port_number = c_port.value
+        if port_number < 0:
+            return None
+        else:
+            return 'COM' + str(port_number)
+    
     def setBaudrate(self, baudrate):
         """Change the current baudrate."""
 
