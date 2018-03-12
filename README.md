@@ -17,8 +17,10 @@ COM port.
 ```python
 import ft232
 
+serial_number = "FT1234"
+
 try:
-    sp = ft232.Ft232(serial, baudrate=115200)
+    sp = ft232.Ft232(serial_number, baudrate=115200)
 except ft232.Ft232Exception:
     print("Unable to open the ftdi device: %s" % serial)
     sys.exit(1)
