@@ -37,6 +37,7 @@ PRODUCT = 0x6001
 ftdi.ftdi_new.restype = c.c_void_p
 ftdi.ftdi_usb_open_desc.argtypes = [c.c_void_p, c.c_int, c.c_int,
                                     c.c_char_p, c.c_char_p]
+ftdi.ftdi_get_error_string.restype = c.c_char_p
 
 SIO_DISABLE_FLOW_CTRL = 0x0
 SIO_RTS_CTS_HS = (0x1 << 8)
