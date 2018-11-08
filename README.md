@@ -22,7 +22,7 @@ serial_number = "FT1234"
 try:
     sp = ft232.Ft232(serial_number, baudrate=115200)
 except ft232.Ft232Exception:
-    print("Unable to open the ftdi device: %s" % serial)
+    print("Unable to open the ftdi device: %s" % serial_number)
     sys.exit(1)
 
 #You may use sp as you would a Serial object
