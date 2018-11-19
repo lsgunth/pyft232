@@ -37,4 +37,7 @@ sp.cbus_setup(mask=3, init=3)
 #Change the current value of all setup pins
 sp.cbus_write(2)
 
+#Print the current value of all setup pins
+print("CBUS: %s" % sp.cbus_read())
+
 ```
