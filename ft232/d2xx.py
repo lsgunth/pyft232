@@ -389,7 +389,7 @@ class D2xx(io.RawIOBase):
         status = d2xx.FT_GetBitMode(self.handle, c.byref(inputs))
         if status != FT_OK: raise D2XXException(status)
 
-        return inputs & 0xf
+        return ord(inputs.value) & 0xf
 
     def flushInput(self):
         status = d2xx.FT_Purge(self.handle, FT_PURGE_RX)
