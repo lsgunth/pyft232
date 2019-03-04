@@ -31,10 +31,14 @@ class MPSSE():
     All commands are described in this reference sheet 
     https://www.ftdichip.com/Support/Documents/AppNotes/AN_108_Command_Processor_for_MPSSE_and_MCU_Host_Bus_Emulation_Modes.pdf
     """
-    def __init__(self, Ft2xx=Ft232("Ft232H")):
-        self.Ft232 = Ft2xx
-        self.PinDirections = 0b0000000000001011
-        self.PinValues = 0x0000
+    def __init__(self, Ft2xx=_Ft232("Ft232H")):
+        self._Ft232 = Ft2xx
+        self._setBitModeMPSSE()
+        self._PinDirections = 0b0000000000001011
+        self._PinValues = 0x0000
+
+    def _setBitModeMPSSE(self):
+        self._Ft232.setBitMode(mask=0, mode=Ft232.BM_MPSSE)
 
     def _dataCommand(self, ReadWriteData, AsBitsBytes, WriteClkEdge, BitOrder, TmsOnOff):
         """ Before writing or reading data a Commandbyte has to be sent in advance which defines how the data is sent or received and how it should be interpreted. After sending the Commandbyte the Databytes are expected. 
@@ -55,14 +59,14 @@ class MPSSE():
         This function implements chapter 3.7 - Loopback Commands.
         It does not return anything but directly writes the Commandbyte to the device.
         """
-        self.Ft232.write(0x84)
+        self._Ft232.write(str(0x84))
 
     def _disableLoobback(self):
         """ This disables Loopback. This function _enableLoopback for mor details
         This function implements chapter 3.7 - Loopback Commands.
         It does not return anything but directly writes the Commandbyte to the device.
         """
-        self.Ft232.write(0x85)
+        self._Ft232.write(str(0x85))
 
     def _setClockDivisor(self, Divisor):
         """ The Clock of the MPSSE device can be changed by setting a divisor, which lowers the Baseclock of the device by following equation:
@@ -72,7 +76,7 @@ class MPSSE():
         """
         DivisorLowByte = Divisor & 0xff
         DivisorHighByte = (Divisor >> 8) & 0xff
-        self.Ft232.write(bytearray([0x86, DivisorLowByte, DivisorHighByte]))
+        self._Ft232.write(str(bytearray([0x86, DivisorLowByte, DivisorHighByte])))
 
     def _cpuMode(self): #feel free to change the name
         """ To be implemented.
@@ -90,35 +94,35 @@ class MPSSE():
         This function implements chapter 6.2. Enable Clk Divide by 5.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x8b)
+        self._Ft232.write(str(0x8b))
 
     def _disableClockDivide(self):
         """ This turn off the Baseclock devide of the MPSSE unit by 5.
         This function implements chapter 6.1. Disable Clk Divide by 5.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x8a)
+        self._Ft232.write(str(0x8a))
 
     def _enableThreePhaseClocking(self):
         """ Missing description.
         This function implements chapter 6.3 Enable 3 Phase Data Clocking.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x8c)
+        self._Ft232.write(str(0x8c))
 
     def _disableThreePhaseClocking(self):
         """ Missing description.
         This function implements chapter 6.4 Disable 3 Phase Data Clocking
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x8d)
+        self._Ft232.write(str(0x8d))
 
     def _clockWithoutDataUntilBits(self, NumberBits):
         """ Missing description.
         This function implements chapter 6.5 Clock For n bits with no data transfer.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(bytearray([0x8e, NumberBits & 8]))
+        self._Ft232.write(str(bytearray([0x8e, NumberBits & 8])))
 
     def _clockWithoutDataUntilBytes(self, NumberBytes):
         """ Missing description.
@@ -127,35 +131,35 @@ class MPSSE():
         """
         NumberLowByte = NumberBytes & 0xff
         NumberHighByte = (NumberBytes >> 8) & 0xff
-        self.Ft232.write(bytearray([0x8f, NumberLowByte, NumberHighByte]))
+        self._Ft232.write(str(bytearray([0x8f, NumberLowByte, NumberHighByte])))
 
     def _clockWithoutDataUntilHigh(self):
         """ Missing description.
         This function implements chapter 6.7 Clk continuously and Wait On I/O High.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x94)
+        self._Ft232.write(str(0x94))
 
     def _clockWithoutDataUntilLow(self):
         """ Missing description.
         This function implements chapter 6.8 Clk continuously and Wait On I/O Low.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x95)
+        self._Ft232.write(str(0x95))
 
     def _enableAdaptiveClock(self):
         """ Missing description.
         This function implements chapter 6.9 Turn On Adaptive clocking.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x96)
+        self._Ft232.write(str(0x96))
 
     def _disableAdaptiveClock(self):
         """ Missing description.
         This function implements chapter 6.10 Turn Off Adaptive clocking.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x97)
+        self._Ft232.write(str(0x97))
 
     def _clockWithoutDataUntilHighOrBytes(self, NumberBytes):
         """ Missing description.
@@ -164,7 +168,7 @@ class MPSSE():
         """
         NumberLowByte = NumberBytes & 0xff
         NumberHighByte = (NumberBytes >> 8) & 0xff
-        self.Ft232.write(bytearray([0x9c, NumberLowByte, NumberHighByte]))
+        self._Ft232.write(str(bytearray([0x9c, NumberLowByte, NumberHighByte])))
 
     def _clockWithoutDataUntilLowOrBytes(self, NumberBytes):
         """ Missing description.
@@ -173,14 +177,14 @@ class MPSSE():
         """
         NumberLowByte = NumberBytes & 0xff
         NumberHighByte = (NumberBytes >> 8) & 0xff
-        self.Ft232.write(bytearray([0x9d, NumberLowByte, NumberHighByte]))
+        self._Ft232.write(str(bytearray([0x9d, NumberLowByte, NumberHighByte])))
 
     def _setIoDriveTristate(self): #feel free to change the name
         """ Missing description.
         This function implements chapter 7.1 Set I/O to only drive on a ‘0’ and tristate on a ‘1’.
         It does not return anything but directly writes the Commandbyte and new Divisor to the device.
         """
-        self.Ft232.write(0x9e)
+        self._Ft232.write(str(0x9e))
 
     def setPinDirection(self, Pin, InputOutputPin):
         Command = None
@@ -191,8 +195,8 @@ class MPSSE():
         else:
             print("error, Pin is not allowed")
             return
-        self.PinDirections = (self.PinDirections & ~(1 << Pin)) | (InputOutputPin << Pin)
-        Ft232.write(bytearray([Command, self.PinValues, self.PinDirections]))
+        self._PinDirections = (self._PinDirections & ~(1 << Pin)) | (InputOutputPin << Pin)
+        Ft232.write(str(bytearray([Command, self._PinValues, self._PinDirections])))
 
     def setPinValue(self, Pin, HighLowPin):
         Command = None
@@ -204,11 +208,13 @@ class MPSSE():
             print("error, Pin is not allowed")
             return
         self.PinValue = (self.PinValue & ~(1 << Pin)) | (HighLowPin << Pin)
-        Ft232.write(bytearray([Command, self.PinValues, self.PinDirections]))
+        Ft232.write(str(bytearray([Command, self._PinValues, self._PinDirections])))
 
     def _setClock(self, Hz, ClockDevide=False, ThreePhase=False, AdaptiveClock=False):
-        """Set the clock speed of the MPSSE engine. Can be any value from 450hz
-        to 30mhz and will pick that speed or the closest speed below it.
+        # This function is inspired and partially copied from Adafruit_Python_GPIO/Adafruit_GPIO/FT232H.py on GitHub.
+        # for more information see: https://github.com/adafruit/Adafruit_Python_GPIO/blob/master/Adafruit_GPIO/FT232H.py
+
+        """Set the clock speed of the MPSSE engine. Can be any value from 450hz to 30mhz and will pick that speed or the closest speed below it.
         """
         # Disable clock divisor by 5 to enable faster speeds on FT232H.
         if ClockDevide:
@@ -241,24 +247,39 @@ class MPSSE():
         # Send command to set divisor from low and high byte values.
         self._setClockDivisor(Divisor)
 
-    def _write(self, Data, ReadWriteData, AsBitsBytes, WriteClkEdge, BitOrder, TmsOnOff):
-        Command = self._dataCommand(ReadWriteData, AsBitsBytes, WriteClkEdge, BitOrder, TmsOnOff)
+    def _write(self, Data, AsBitsBytes, WriteClkEdge, BitOrder):
+        Command = self._dataCommand(WRITE_DATA, AsBitsBytes, WriteClkEdge, BitOrder, TMS_OFF)
         if AsBitsBytes == AS_BITS:
-            Lenght = len(Data) - 1
-            self.Ft232.write(bytearray([Command, Lenght]))
+            Length = Data[0].bit_length() - 1
+            self._Ft232.write(str(bytearray([Command, Length])))
         elif AsBitsBytes == AS_BYTES:
-            Lenght = len(Data) - 1
-            LenghtLowByte = Lenght & 0xff
-            LenghtHighByte = (Lenght >> 8) & 0xff
-            self.Ft232.write(bytearray([Command, LenghtLowByte, LenghtHighByte]))
+            Length = len(Data) - 1
+            LengthLowByte = Length & 0xff
+            LengthHighByte = (Length >> 8) & 0xff
+            self._Ft232.write(str(bytearray([Command, LengthLowByte, LengthHighByte])))
         else:
             print("an error in _write()")
             return
-        self.Ft232.write(Data)
+        self._Ft232.write(str(Data))
+
+    def _read(self, DataLength, AsBitsBytes, WriteClkEdge, BitOrder):
+        Command = self._dataCommand(READ_DATA, AsBitsBytes, WriteClkEdge, BitOrder, TMS_OFF)
+        if AsBitsBytes == AS_BITS:
+            DataLength = DataLength - 1
+            self._Ft232.write(str(bytearray([Command, DataLength])))
+        elif AsBitsBytes == AS_BYTES:
+            DataLength = DataLength - 1
+            LenghtLowByte = DataLength & 0xff
+            LenghtHighByte = (DataLength >> 8) & 0xff
+            self._Ft232.write(str(bytearray([Command, LenghtLowByte, LenghtHighByte])))
+        else:
+            print("an error in _read()")
+            return
+        return bytearray([self._Ft232.read(DataLength)])
 
 class SPI(MPSSE):
     
-    def __init__(self, Ft2xx=Ft232('Ft232H'), Cs=None, Clock=1000000, Mode=0, BitOrder=BIT_ORDER_MSB):        
+    def __init__(self, Ft2xx=_Ft232('Ft232H'), Cs=None, Clock=1000000, Mode=0, BitOrder=BIT_ORDER_MSB):        
         super().__init__(Ft2xx=Ft2xx)
         self._setup(Mode, Clock, BitOrder)
 
@@ -268,9 +289,7 @@ class SPI(MPSSE):
         self.BitOrder = BitOrder
 
     def setMode(self, Mode):
-        """Set SPI mode which controls clock polarity and phase.  Should be a
-        numeric value 0, 1, 2, or 3.  See wikipedia page for details on meaning:
-        http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus
+        """Set SPI mode which controls clock polarity and phase. Should be a numeric value 0, 1, 2, or 3. See wikipedia page for details on meaning: http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus
         """
         if Mode < 0 or Mode > 3:
             raise ValueError('Mode must be a value 0, 1, 2, or 3.')
@@ -308,3 +327,6 @@ class SPI(MPSSE):
 
     def write(self, Data):
         self._write(Data, WRITE_DATA, AS_BYTES, self.WriteClkEdge, self.BitOrder, TMS_OFF)
+
+    def read(self, DataLength):
+        return self._read(DataLength, AS_BYTES, self.WriteClkEdge, self.BitOrder)

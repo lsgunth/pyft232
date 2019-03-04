@@ -99,11 +99,11 @@ def list_devices():
     return ret
 
 class D2xx(io.RawIOBase):
-    BM_RESET = 0x0
-    BM_ASYNC_BB = 0x1
-    BM_MPSSE = 0x2
-    BM_SYNC_BB = 0x4
-    BM_MCU = 0x8
+    BM_RESET = 0x00
+    BM_ASYNC_BB = 0x01
+    BM_MPSSE = 0x02
+    BM_SYNC_BB = 0x04
+    BM_MCU = 0x08
     BM_FOIS = 0x10
     BM_CBUS = 0x20
     BM_FIFO = 0x40
@@ -411,11 +411,6 @@ class D2xx(io.RawIOBase):
     def flush(self):
         pass
 
-    def setBitMode(self, mask, init=0, mode=BM_RESET):
-        self._mask = int(mask) & 0xf
-        self._outputs = int(init) & 0xf
-
-        mask = (self._mask << 4) | (self._outputs & self._mask)
-
+    def setBitMode(self, mask, mode=BM_RESET):
         status = d2xx.FT_SetBitMode(self.handle, mask, mode)
         if status != FT_OK: raise D2XXException(status)

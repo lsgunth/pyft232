@@ -100,11 +100,11 @@ def list_devices():
     return ret
 
 class LibFtdi(io.RawIOBase):
-    BM_RESET = 0x0
-    BM_ASYNC_BB = 0x1
-    BM_MPSSE = 0x2
-    BM_SYNC_BB = 0x4
-    BM_MCU = 0x8
+    BM_RESET = 0x00
+    BM_ASYNC_BB = 0x01
+    BM_MPSSE = 0x02
+    BM_SYNC_BB = 0x04
+    BM_MCU = 0x08
     BM_FOIS = 0x10
     BM_CBUS = 0x20
     BM_FIFO = 0x40
@@ -408,15 +408,9 @@ class LibFtdi(io.RawIOBase):
         if ftdi.ftdi_usb_purge_tx_buffer(self._context) != 0:
             raise LibFtdiException(self._context)
 
-
     def flush(self):
         pass
 
-    def setBitMode(self, mask, init=0, mode=BM_RESET):
-        self._cbus_mask = int(mask) & 0xf
-        self._cbus_outputs = int(init) & 0xf
-
-        mask = (self._cbus_mask << 4) | (self._cbus_outputs & self._cbus_mask)
-
+    def setBitMode(self, mask, mode=BM_RESET):
         if ftdi.ftdi_set_bitmode(self._context, mask, mode):
             raise LibFtdiException(self._context)
