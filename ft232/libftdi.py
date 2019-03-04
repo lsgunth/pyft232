@@ -100,6 +100,15 @@ def list_devices():
     return ret
 
 class LibFtdi(io.RawIOBase):
+    BM_RESET = 0x0
+    BM_ASYNC_BB = 0x1
+    BM_MPSSE = 0x2
+    BM_SYNC_BB = 0x4
+    BM_MCU = 0x8
+    BM_FOIS = 0x10
+    BM_CBUS = 0x20
+    BM_FIFO = 0x40
+
     BAUDRATES = (50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,
                  19200,38400,57600,115200,230400,460800,500000,576000,921600,
                  1000000,1152000,1500000,2000000,2500000,3000000,3500000,4000000)
@@ -402,3 +411,12 @@ class LibFtdi(io.RawIOBase):
 
     def flush(self):
         pass
+
+    def setBitMode(self, mask, init=0, mode=BM_RESET):
+        self._cbus_mask = int(mask) & 0xf
+        self._cbus_outputs = int(init) & 0xf
+
+        mask = (self._cbus_mask << 4) | (self._cbus_outputs & self._cbus_mask)
+
+        if ftdi.ftdi_set_bitmode(self._context, mask, mode):
+            raise LibFtdiException(self._context)

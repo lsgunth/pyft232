@@ -34,7 +34,6 @@ elif platform.system().startswith("Linux"):
 elif platform.system().startswith("Darwin"):
     d2xx = c.cdll.LoadLibrary("libftd2xx.dylib")
 
-
 FT_OK = 0
 FT_OPEN_BY_SERIAL_NUMBER = 1
 FT_OPEN_BY_DESCRIPTION = 2
@@ -100,6 +99,15 @@ def list_devices():
     return ret
 
 class D2xx(io.RawIOBase):
+    BM_RESET = 0x0
+    BM_ASYNC_BB = 0x1
+    BM_MPSSE = 0x2
+    BM_SYNC_BB = 0x4
+    BM_MCU = 0x8
+    BM_FOIS = 0x10
+    BM_CBUS = 0x20
+    BM_FIFO = 0x40
+
     BAUDRATES = (50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,
                  19200,38400,57600,115200,230400,460800,500000,576000,921600,
                  1000000,1152000,1500000,2000000,2500000,3000000,3500000,4000000)
@@ -402,3 +410,12 @@ class D2xx(io.RawIOBase):
 
     def flush(self):
         pass
+
+    def setBitMode(self, mask, init=0, mode=BM_RESET):
+        self._mask = int(mask) & 0xf
+        self._outputs = int(init) & 0xf
+
+        mask = (self._mask << 4) | (self._outputs & self._mask)
+
+        status = d2xx.FT_SetBitMode(self.handle, mask, mode)
+        if status != FT_OK: raise D2XXException(status)

@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
-
 try:
     from .d2xx import list_devices
     from .d2xx import D2xx as Ft232
