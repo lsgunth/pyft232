@@ -16,13 +16,15 @@
 # License along with this library.
 
 try:
-    from .d2xx import list_devices
+    from .d2xx import list_devices, D2XXException
     from .d2xx import D2xx as Ft232
 
     Ft232Exception = d2xx.D2XXException
 
 except OSError:
-    from .libftdi import list_devices
+    from .libftdi import list_devices, LibFtdiException
     from .libftdi import LibFtdi as Ft232
 
     Ft232Exception = libftdi.LibFtdiException
+
+from .mpsse import MPSSE, SPI
