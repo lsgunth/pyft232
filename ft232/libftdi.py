@@ -206,7 +206,7 @@ class LibFtdi(io.RawIOBase):
     def setByteSize(self, bytesize):
         """Change byte size."""
         if bytesize not in self.BYTESIZES: raise ValueError("Not a valid byte size: %r" % bytesize)
-        self._bytesize = bytesize0
+        self._bytesize = bytesize
         self._setDataCharacteristics()
 
     def getByteSize(self):

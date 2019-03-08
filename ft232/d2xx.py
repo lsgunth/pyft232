@@ -283,7 +283,7 @@ class D2xx(io.RawIOBase):
 
     def getWriteTimeout(self):
         """Get the current timeout setting."""
-        return self._writeTimeout
+        return self._writetimeout
 
     writeTimeout = property(getWriteTimeout, setWriteTimeout, doc="Timeout setting for write()")
 
@@ -362,7 +362,9 @@ class D2xx(io.RawIOBase):
 
 
     def write(self, s):
-        buf = c.create_string_buffer(s)
+        ## Debug ##
+        print(s.hex())
+        buf = c.create_string_buffer(bytes(s))
         written = c.c_ulong()
         status = d2xx.FT_Write(self.handle, buf, len(s), c.byref(written))
         if status != FT_OK: raise D2XXException(status)
