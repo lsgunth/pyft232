@@ -363,8 +363,9 @@ class D2xx(io.RawIOBase):
 
     def write(self, s):
         ## Debug ##
-        print(s.hex())
-        buf = c.create_string_buffer(bytes(s))
+        # t = bytes(s)
+        # print(t.hex())
+        buf = c.create_string_buffer(s)
         written = c.c_ulong()
         status = d2xx.FT_Write(self.handle, buf, len(s), c.byref(written))
         if status != FT_OK: raise D2XXException(status)
