@@ -327,7 +327,7 @@ class MPSSE():
 
         Parameters
         ----------
-        Data : list, bytes
+        Data : list, bytes, bytearray
             The data which should be send. Can be 1 to 65538 bytes long.
 
         AsBitsBytes : mpsse.AS_BITS / mpsse.AS_BYTES
