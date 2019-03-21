@@ -24,3 +24,5 @@ except OSError:
     from .libftdi import list_devices
     from .libftdi import LibFtdi as Ft232    
     from .libftdi import LibFtdiException as Ft232Exception
+    
+from .boards import FT232H, FT2232H, FT2232D, FT4232H
