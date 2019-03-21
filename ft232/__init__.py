@@ -26,4 +26,4 @@ except OSError:
     from .libftdi import LibFtdiException as Ft232Exception
     
 from .boards import FT232H, FT2232H, FT2232D, FT4232H
-from .mpsse import GPIO
+from .mpsse import GPIO, SPI

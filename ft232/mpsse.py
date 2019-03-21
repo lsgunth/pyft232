@@ -618,3 +618,189 @@ class InputOutputPin():
         """
         if self.__InOut == GPIO.OUTPUT:
             self.__Mpsse.setPinValue(self.__Pin, HighLowPin)
+
+class SPI(MPSSE):
+    """ This class derives from MPSSE and implements everything to use the board as a SPI platform.
+    """
+    def __init__(self, Ftx232, Clock=1000000, Mode=0, BitOrder=MPSSE.BIT_ORDER_MSB):        
+        super().__init__(Ftx232=Ftx232)
+        self.__setupSPI(Mode, Clock, BitOrder)
+
+    def __setupSPI(self, Mode, Clock, BitOrder):
+        """ Sets the Ftx232 to SPI Mode and initalizes the SPI Mode, Clock and BitOrder. This should only be called on __init__().
+        """
+        self.setMode(Mode)
+        self.setClock(Clock)
+        self.setBitOrder(BitOrder)
+    
+    def slave(self, Cs):
+        """ Get a SPI.Slave.
+        Parameters
+        ----------
+        Cs : int
+            The Pin to use as ChipSelect line.
+        Returns
+        ------
+        SpiSlave
+            The SpiSlave is for using read and write functions.
+        """        
+        return SpiSlave(self, Cs)
+
+    def setMode(self, Mode):
+        """Set SPI mode which controls clock polarity and phase. Should be a numeric value 0, 1, 2, or 3. See wikipedia page for details on meaning: http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus
+        Parameters
+        ----------
+        Mode : int, 0, 1, 2, or 3
+            The Pin to use as ChipSelect line.
+        Raises
+        ------
+        ValueError
+            Mode must be a value 0, 1, 2, or 3.
+        """
+        if Mode < 0 or Mode > 3:
+            raise ValueError('Mode must be a value 0, 1, 2, or 3.')
+        if Mode == 0:
+            # Mode 0 captures on rising clock, propagates on falling clock
+            self.__WriteClkEdge = MPSSE.WRITE_CLK_EDGE_NEGATIVE
+            # Clock base is low.
+            ClockIdle = GPIO.LOW
+        elif Mode == 1:
+            # Mode 1 capture of falling edge, propagate on rising clock
+            self.__WriteClkEdge = MPSSE.WRITE_CLK_EDGE_POSITIVE
+            # Clock base is low.
+            ClockIdle = GPIO.LOW
+        elif Mode == 2:
+            # Mode 2 capture on rising clock, propagate on falling clock
+            self.__WriteClkEdge = MPSSE.WRITE_CLK_EDGE_NEGATIVE
+            # Clock base is high.
+            ClockIdle = GPIO.HIGH
+        elif Mode == 3:
+            # Mode 3 capture on falling edge, propagage on rising clock
+            self.__WriteClkEdge = MPSSE.WRITE_CLK_EDGE_POSITIVE
+            # Clock base is high.
+            ClockIdle = GPIO.HIGH
+        # Set clock and DO as output, DI as input.  Also start clock at its base value.
+        self.setPinValue(0, ClockIdle)
+
+    def setBitOrder(self, BitOrder):
+        """Set the Bitorder in which the Bytes are written and read.
+        Parameters
+        ----------
+        BitOrder : int, SPI.BIT_ORDER_MSB / SPI.BIT_ORDER_LSB
+            The BitOrder to use.
+        """
+        self.__BitOrder = BitOrder
+
+    def write(self, Data):
+        """Write data without any ChipSelect.
+        Parameters
+        ----------
+        Data : list, bytes, bytearray
+            The data sent to the SpiSlave. Can be 1 to 65538 bytes long. Or 1 - 8 if data is read AS_BITS.            
+        """
+        self._write(Data, MPSSE.AS_BYTES, self.__WriteClkEdge, self.__BitOrder)
+
+    def read(self, DataLength):
+        """ Read data without any ChipSelect. 
+        Parameters
+        ----------
+        ReadLength : int
+            The number of bytes or bits which should be read. Can be 1 to 65538 in bytes. Or 1 - 8 if data is read AS_BITS
+        Returns
+        -------
+        list(int)
+            A list with the read bytes.
+        """
+        Data = self._read(DataLength, MPSSE.AS_BYTES, self.__WriteClkEdge, self.__BitOrder)
+        return Data
+
+    def transfer(self, Data, ReadData):
+        """ Transfer data  without any ChipSelect. 
+        Parameters
+        ----------
+        Data : list, bytes, bytearray
+            The data which should be send. Can be 1 to 65538 bytes long. Or 1 - 8 if data is read AS_BITS.
+        ReadData : int
+            The number of bytes or bits which should be read. Can be 1 to 65538 in bytes. Or 1 - 8 if data is read AS_BITS.
+        Returns
+        -------
+        list(int)
+            A list with the read bytes.
+        """
+        Data = self._transfer(Data, ReadData, MPSSE.AS_BYTES, self.__WriteClkEdge, self.__BitOrder)
+        return Data
+
+class SpiSlave():
+    """This class implements all functions for the actual communication over SPI.
+    """
+    CHIP_ACTIVE = GPIO.LOW
+    CHIP_INACTIVE = GPIO.HIGH
+
+    def __init__(self, Spi, Cs):
+        self.__Spi = Spi
+        self.__initCs(Cs)
+    
+    def __initCs(self, Cs):
+        """Initializes the Pin uses fpr ChipSelect.
+        Parameters
+        ----------
+        Cs : int, 5 - 15
+            The Pin which should work as ChipSelect.
+        """
+        self.Cs = self.__Spi.pin(Cs)
+        self.Cs.direction(GPIO.OUTPUT)
+        self.__chipSelect(SpiSlave.CHIP_INACTIVE)
+
+    def __chipSelect(self, ChipActiveInactive):
+        """Make ChipSelect aktive/inactive. Called before and after write message.
+        Parameters
+        ----------
+        Cs : int, 5 - 15
+            The Pin which should work as ChipSelect.
+        """
+        self.Cs.pull(ChipActiveInactive)
+
+    def write(self, Data):
+        """Write data to the SpiSlave.
+        Parameters
+        ----------
+        Data : list, bytes, bytearray
+            The data sent to the SpiSlave. Can be 1 to 65538 bytes long. Or 1 - 8 if data is read AS_BITS.            
+        """
+        self.__chipSelect(SpiSlave.CHIP_ACTIVE)
+        self.__Spi.write(Data)
+        self.__chipSelect(SpiSlave.CHIP_INACTIVE)
+
+    def read(self, DataLength):
+        """ Read data from the SpiSlave. 
+        Parameters
+        ----------
+        ReadLength : int
+            The number of bytes or bits which should be read. Can be 1 to 65538 in bytes. Or 1 - 8 if data is read AS_BITS
+        Returns
+        -------
+        list(int)
+            A list with the read bytes.
+        """
+        self.__chipSelect(SpiSlave.CHIP_ACTIVE)
+        Data = self.__Spi.read(DataLength)
+        self.__chipSelect(SpiSlave.CHIP_INACTIVE)
+        return Data
+
+    def transfer(self, Data, ReadData):
+        """ Transfer data with the SpiSlave. 
+        Parameters
+        ----------
+        Data : list, bytes, bytearray
+            The data which should be send. Can be 1 to 65538 bytes long. Or 1 - 8 if data is read AS_BITS.
+        ReadData : int
+            The number of bytes or bits which should be read. Can be 1 to 65538 in bytes. Or 1 - 8 if data is read AS_BITS.
+        Returns
+        -------
+        list(int)
+            A list with the read bytes.
+        """
+        self.__chipSelect(SpiSlave.CHIP_ACTIVE)
+        Data = self.__Spi.transfer(Data, ReadData)
+        self.__chipSelect(SpiSlave.CHIP_INACTIVE)
+        return Data

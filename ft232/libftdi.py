@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
-from .mpsse import GPIO
+from .mpsse import GPIO, SPI
 import io
 import ctypes as c
 import usb
@@ -421,3 +421,6 @@ class LibFtdi(io.RawIOBase):
 
     def gpio(self):
         return GPIO(self)
+
+    def spi(self, Clock=1000000, Mode=0, BitOrder=SPI.BIT_ORDER_MSB):
+        return SPI(self, Clock, Mode, BitOrder)

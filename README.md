@@ -70,3 +70,22 @@ while True:
     pin.pull(GPIO.LOW)
     sleep(1)
 ```
+
+### SPI
+
+Simple SPI example:
+
+```python
+# Import a specific chip (FT232H, FT2232H, FT2232D, FT4232H)
+from ft232 import FT232H as Board
+# Import GPIO for the SPI Commands
+from ft232 import SPI
+from time import sleep
+
+# Open connection to the chosen board, config it as SPI board and get a Slave at Pin C3 (Pin 12).
+spiSlave = Board("").spi(Clock=3e6, Mode=0, BitOrder=SPI.BIT_ORDER_MSB).slave(Board.C3)
+# Write data to the spiSlave connected to Pin C3
+spiSlave.write([0xff, 0x0f, 0b00001111])
+# Read 3 bytes from spiSlave connected to Pin C3 and print data
+print(spiSlave.read(3))
+```
