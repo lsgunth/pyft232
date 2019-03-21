@@ -41,3 +41,51 @@ sp.cbus_write(2)
 print("CBUS: %s" % sp.cbus_read())
 
 ```
+
+### GPIO
+
+Simple Blinker example:
+
+```python
+# Import a specific chip (FT232H, FT2232H, FT2232D, FT4232H)
+from ft232 import FT232H as Board
+# Import GPIO for the GPIO Commands
+from ft232 import GPIO
+from time import sleep
+
+# Open connection to the chosen board, config it as GPIO board and get a Pin at Pin C3 (Pin 12).
+pin = Board("").gpio().pin(Board.C3)
+
+# Set Pin as output
+pin.direction(GPIO.OUTPUT)
+# Read and print current value
+print(pin.value())
+# Pull/Set Pin HIGH (1)
+pin.pull(GPIO.HIGH)
+print(pin.value())
+# Start blinking
+while True:
+    pin.pull(GPIO.HIGH)
+    sleep(1)
+    pin.pull(GPIO.LOW)
+    sleep(1)
+```
+
+### SPI
+
+Simple SPI example:
+
+```python
+# Import a specific chip (FT232H, FT2232H, FT2232D, FT4232H)
+from ft232 import FT232H as Board
+# Import GPIO for the SPI Commands
+from ft232 import SPI
+from time import sleep
+
+# Open connection to the chosen board, config it as SPI board and get a Slave at Pin C3 (Pin 12).
+spiSlave = Board("").spi(Clock=3e6, Mode=0, BitOrder=SPI.BIT_ORDER_MSB).slave(Board.C3)
+# Write data to the spiSlave connected to Pin C3
+spiSlave.write([0xff, 0x0f, 0b00001111])
+# Read 3 bytes from spiSlave connected to Pin C3 and print data
+print(spiSlave.read(3))
+```
