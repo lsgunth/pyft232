@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
-
 try:
     from .d2xx import list_devices
-    from .d2xx import D2xx as Ft232
-
-    Ft232Exception = d2xx.D2XXException
+    from .d2xx import D2xx as Ft232    
+    from .d2xx import D2XXException as Ft232Exception
 
 except OSError:
     from .libftdi import list_devices
-    from .libftdi import LibFtdi as Ft232
-
-    Ft232Exception = libftdi.LibFtdiException
+    from .libftdi import LibFtdi as Ft232    
+    from .libftdi import LibFtdiException as Ft232Exception

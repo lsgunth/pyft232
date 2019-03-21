@@ -129,7 +129,7 @@ class D2xx(io.RawIOBase):
         self._setDataCharacteristics()
 
         self._timeout = timeout
-        self._writetimeout = writeTimeout
+        self._writeTimeout = writeTimeout
         self._setTimeouts()
 
         self._flow = FT_FLOW_NONE
@@ -236,7 +236,7 @@ class D2xx(io.RawIOBase):
 
     def _setTimeouts(self):
         t = c.c_int(int(self._timeout*1000))
-        w = c.c_int(int(self._writetimeout*1000))
+        w = c.c_int(int(self._writeTimeout*1000))
         status = d2xx.FT_SetTimeouts(self.handle, t, w)
         if status != FT_OK: raise D2XXException(status)
 
@@ -267,7 +267,7 @@ class D2xx(io.RawIOBase):
         if timeout < 0: raise ValueError("Not a valid timeout: %r" % timeout)
 
         try:
-            self._writetimeout = int(timeout)
+            self._writeTimeout = int(timeout)
         except TypeError:
             raise ValueError("Not a valid timeout: %r" % timeout)
 
