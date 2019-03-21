@@ -402,3 +402,18 @@ class LibFtdi(io.RawIOBase):
 
     def flush(self):
         pass
+
+    BM_RESET = 0x00
+    BM_ASYNC_BB = 0x01
+    BM_MPSSE = 0x02
+    BM_SYNC_BB = 0x04
+    BM_MCU = 0x08
+    BM_FOIS = 0x10
+    BM_CBUS = 0x20
+    BM_FIFO = 0x40
+
+    def setBitMode(self, mask, mode=BM_RESET):
+        if mode != self.BM_RESET:
+            self.setBitMode(0, self.BM_RESET)
+        if ftdi.ftdi_set_bitmode(self._context, mask, mode):
+            raise LibFtdiException(self._context)
