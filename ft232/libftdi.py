@@ -141,7 +141,7 @@ class LibFtdi(io.RawIOBase):
         self._setDataCharacteristics()
 
         self.timeout = timeout
-        self.writetimeout = writeTimeout
+        self._writeTimeout = writeTimeout
 
         self._flow = SIO_DISABLE_FLOW_CTRL
         if xonxoff:
@@ -260,7 +260,7 @@ class LibFtdi(io.RawIOBase):
         if timeout < 0: raise ValueError("Not a valid timeout: %r" % timeout)
 
         try:
-            self._writetimeout = float(timeout)
+            self._writeTimeout = float(timeout)
         except TypeError:
             raise ValueError("Not a valid timeout: %r" % timeout)
 
