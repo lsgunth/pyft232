@@ -553,3 +553,68 @@ class MPSSE():
             self.__Ft232.write(bytes([Command, LengthLowByte, LengthHighByte]))
         self.__Ft232.write(bytes(Data))
         return self.__Ft232.read(ReadLength)
+
+    def pin(self, Pin):
+        """ Get a GPIO.Pin.
+        Parameters
+        ----------
+        Pin : int
+            The Pin to use as GPIO.Pin.
+        Returns
+        -------
+        InputOutputPin
+            The Pin to use as GPIO.Pin.
+        Raises
+        ------
+        ValueError
+            Your choosen board does not support this Pin!
+        """
+        if self.__isPinLowByte(Pin) or self.__isPinHighByte(Pin):
+            return InputOutputPin(self, Pin)
+        else:
+            raise ValueError('Your choosen board does not support this Pin!')
+
+class GPIO(MPSSE):
+    """ This class derives from MPSSE and implements everything to use the board as a simple GPIO platform.
+    """
+    # Pin setup (direction, value)
+    INPUT = 0
+    OUTPUT = 1
+    HIGH = 1
+    LOW = 0
+
+class InputOutputPin():
+    """This class implements all functions for interaction with GPIO pins.
+    """
+    def __init__(self, Mpsse, Pin):
+        self.__Mpsse = Mpsse
+        self.__Pin = Pin
+
+    def direction(self, InputOutput):
+        """ Set the direction of a GPIO pin. 
+        Parameters
+        ----------
+        InputOutput : int, GPIO.INPUT / GPIO.OUTPUT
+            The direction of the pin.
+        """
+        self.__InOut = InputOutput
+        self.__Mpsse.setPinDirection(self.__Pin, InputOutput)
+
+    def value(self):
+        """ Read the value of the pin. 
+        Returns
+        -------
+        int
+            GPIO.HIGH (1) or GPIO.LOW (0)
+        """
+        return self.__Mpsse.getPinValue(self.__Pin)
+        
+    def pull(self, HighLowPin):
+        """ Set the value of a GPIO pin. 
+        Parameters
+        ----------
+        HighLowPin : int, GPIO.HIGH / GPIO.LOW
+            The value of the pin.
+        """
+        if self.__InOut == GPIO.OUTPUT:
+            self.__Mpsse.setPinValue(self.__Pin, HighLowPin)

@@ -17,6 +17,7 @@
 # License along with this library.
 #
 
+from .mpsse import GPIO
 import platform
 import io
 import ctypes as c
@@ -417,3 +418,6 @@ class D2xx(io.RawIOBase):
             self.setBitMode(0, self.BM_RESET)   
         status = d2xx.FT_SetBitMode(self.handle, mask, mode)
         if status != FT_OK: raise D2XXException(status)
+
+    def gpio(self):
+        return GPIO(self)

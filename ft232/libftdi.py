@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library.
 
+from .mpsse import GPIO
 import io
 import ctypes as c
 import usb
@@ -417,3 +418,6 @@ class LibFtdi(io.RawIOBase):
             self.setBitMode(0, self.BM_RESET)
         if ftdi.ftdi_set_bitmode(self._context, mask, mode):
             raise LibFtdiException(self._context)
+
+    def gpio(self):
+        return GPIO(self)
