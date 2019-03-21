@@ -17,6 +17,7 @@
 # License along with this library.
 #
 
+from .mpsse import SPI, GPIO
 import platform
 import io
 import ctypes as c
@@ -99,14 +100,6 @@ def list_devices():
     return ret
 
 class D2xx(io.RawIOBase):
-    BM_RESET = 0x00
-    BM_ASYNC_BB = 0x01
-    BM_MPSSE = 0x02
-    BM_SYNC_BB = 0x04
-    BM_MCU = 0x08
-    BM_FOIS = 0x10
-    BM_CBUS = 0x20
-    BM_FIFO = 0x40
 
     BAUDRATES = (50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,
                  19200,38400,57600,115200,230400,460800,500000,576000,921600,
@@ -413,7 +406,24 @@ class D2xx(io.RawIOBase):
 
     def flush(self):
         pass
+    
+    BM_RESET = 0x00
+    BM_ASYNC_BB = 0x01
+    BM_MPSSE = 0x02
+    BM_SYNC_BB = 0x04
+    BM_MCU = 0x08
+    BM_FOIS = 0x10
+    BM_CBUS = 0x20
+    BM_FIFO = 0x40
 
     def setBitMode(self, mask, mode=BM_RESET):
+        if mode != self.BM_RESET:
+            self.setBitMode(0, self.BM_RESET)   
         status = d2xx.FT_SetBitMode(self.handle, mask, mode)
         if status != FT_OK: raise D2XXException(status)
+
+    def spi(self, Clock=1000000, Mode=0, BitOrder=SPI.BIT_ORDER_MSB):
+        return SPI(self, Clock, Mode, BitOrder)
+
+    def gpio(self):
+        return GPIO(self)
