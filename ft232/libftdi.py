@@ -95,7 +95,7 @@ def list_devices():
                     serial = h.getString(dev.iSerialNumber, 20)
                     desc = h.getString(dev.iProduct, 100)
                     ret.append((serial, desc))
-                except usb.USBError:
+                except (usb.USBError, ValueError):
                     pass
     return ret
 
