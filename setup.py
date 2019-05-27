@@ -27,6 +27,7 @@ setup(name='pyft232',
       "the same interface as pyserial. Using this method gives easy access "
       "to the additional features on the chip like CBUS GPIO.",
       long_description=open('README.md', 'rt').read(),
+      long_description_content_type="text/markdown",
       author='Logan Gunthorpe',
       author_email='logang@deltatee.com',
       packages=['ft232'],
