@@ -388,8 +388,11 @@ class LibFtdi(io.RawIOBase):
             raise LibFtdiException(self._context)
 
     def cbus_read(self):
-        #Unsupported???
-        pass
+        inputs = c.c_char()
+        if ftdi.ftdi_read_pins(self._context, c.byref(inputs)) != 0:
+            raise LibFtdiException(self._context)
+
+        return ord(inputs.value) & 0xf
 
     def flushInput(self):
         if ftdi.ftdi_usb_purge_rx_buffer(self._context) != 0:
