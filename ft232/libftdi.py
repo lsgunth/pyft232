@@ -24,7 +24,7 @@ import time
 from serial import (FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS, PARITY_NONE,
                     PARITY_EVEN, PARITY_ODD, STOPBITS_ONE, STOPBITS_TWO)
 
-for lib in ("libftdi.so", "libftdi.so.1"):
+for lib in ("libftdi.so", "libftdi.so.1", "libftdi.dylib", "libftdi.dylib.1"):
     try:
         ftdi = c.CDLL(lib)
         break
@@ -111,11 +111,12 @@ class LibFtdi(io.RawIOBase):
                    PARITY_ODD  : 1,
                    PARITY_EVEN : 2}
 
-    def __init__(self, port=None, baudrate=9600, bytesize=8, parity='N',
+    def __init__(self, serial_number=None, description=None, baudrate=9600, bytesize=8, parity='N',
                  stopbits=1, timeout=0, xonxoff=0, rtscts=0,
                  writeTimeout=0):
         self._isopen = False
-        self.portstr = port
+        self.snstr = serial_number
+        self.descstr = description
 
         self._context = ftdi.ftdi_new()
         self._struct = FtdiContext.from_address(self._context)
@@ -124,11 +125,17 @@ class LibFtdi(io.RawIOBase):
         if self._context == 0:
             raise LibFtdiException(self._context)
 
-
-        serial = c.create_string_buffer(port.encode())
-        ret = ftdi.ftdi_usb_open_desc(self._context, VENDOR,
-                                      PRODUCT, None, serial)
-        if ret != 0:
+        if serial_number:
+            serial = c.create_string_buffer(serial_number.encode())
+            ret = ftdi.ftdi_usb_open_desc(self._context, VENDOR,
+                                          PRODUCT, None, serial)
+            if ret != 0: raise LibFtdiException(self._context)
+        elif description:
+            desc = c.create_string_buffer(description.encode())
+            ret = ftdi.ftdi_usb_open_desc(self._context, VENDOR,
+                                          PRODUCT, desc, None)
+            if ret != 0: raise LibFtdiException(self._context)
+        else:
             raise LibFtdiException(self._context)
 
         self._cbus_mask = 0
@@ -326,12 +333,13 @@ class LibFtdi(io.RawIOBase):
 
     def __repr__(self):
         """String representation of the current port settings and its state."""
-        return ("%s<id=0x%x>(port=%r, baudrate=%r, bytesize=%r, "
+        return ("%s<id=0x%x>(serial_number=%r, description=%r, baudrate=%r, bytesize=%r, "
                              "parity=%r, stopbits=%r, timeout=%r, "
                              "xonxoff=%r, rtscts=%r, dsrdtr=%r)" %
                 (self.__class__.__name__,
                  id(self),
-                 self.portstr,
+                 self.snstr,
+                 self.descstr,
                  self.baudrate,
                  self.bytesize,
                  self.parity,

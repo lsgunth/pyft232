@@ -36,6 +36,7 @@ elif platform.system().startswith("Darwin"):
 
 
 FT_OK = 0
+FT_INVALID_PARAMETER = 8
 FT_OPEN_BY_SERIAL_NUMBER = 1
 FT_OPEN_BY_DESCRIPTION = 2
 FT_OPEN_BY_LOCATION = 4
@@ -111,16 +112,26 @@ class D2xx(io.RawIOBase):
                    PARITY_ODD  : 1,
                    PARITY_EVEN : 2}
 
-    def __init__(self, port=None, baudrate=9600, bytesize=8, parity='N',
+    def __init__(self, serial_number=None, description=None, baudrate=9600, bytesize=8, parity='N',
                  stopbits=1, timeout=10, xonxoff=0, rtscts=0,
                  writeTimeout=10):
         self._isopen = False
-        self.portstr = port
-        serial = c.create_string_buffer(port.encode())
+        self.snstr = serial_number
+        self.descstr = description
         self.handle = c.c_void_p()
-        status = d2xx.FT_OpenEx(serial, FT_OPEN_BY_SERIAL_NUMBER,
-                                c.byref(self.handle))
-        if status != FT_OK: raise D2XXException(status)
+        status = FT_INVALID_PARAMETER
+        if serial_number:
+            serial = c.create_string_buffer(serial_number.encode())
+            status = d2xx.FT_OpenEx(serial, FT_OPEN_BY_SERIAL_NUMBER,
+                                    c.byref(self.handle))
+            if status != FT_OK: raise D2XXException(status)
+        elif description:
+            desc = c.create_string_buffer(description.encode())
+            status = d2xx.FT_OpenEx(desc, FT_OPEN_BY_DESCRIPTION,
+                                    c.byref(self.handle))
+            if status != FT_OK: raise D2XXException(status)
+        else:
+            raise D2XXException(status)
 
         self.baudrate = baudrate
         self._bytesize = bytesize
@@ -165,7 +176,7 @@ class D2xx(io.RawIOBase):
             return None
         else:
             return 'COM' + str(port_number)
-    
+
     def setBaudrate(self, baudrate):
         """Change the current baudrate."""
 
@@ -336,12 +347,13 @@ class D2xx(io.RawIOBase):
 
     def __repr__(self):
         """String representation of the current port settings and its state."""
-        return ("%s<id=0x%x>(port=%r, baudrate=%r, bytesize=%r, "
+        return ("%s<id=0x%x>(serial_number=%r, description=%r, baudrate=%r, bytesize=%r, "
                              "parity=%r, stopbits=%r, timeout=%r, "
                              "xonxoff=%r, rtscts=%r, dsrdtr=%r)" %
                 (self.__class__.__name__,
                  id(self),
-                 self.portstr,
+                 self.snstr,
+                 self.descstr,
                  self.baudrate,
                  self.bytesize,
                  self.parity,
