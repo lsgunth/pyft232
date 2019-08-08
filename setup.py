@@ -22,7 +22,7 @@ except ImportError:
     from distutils.core import setup
 
 setup(name='pyft232',
-      version='0.8',
+      version='0.9',
       description="Python bindings to d2xx and libftdi to access FT232 chips with "
       "the same interface as pyserial. Using this method gives easy access "
       "to the additional features on the chip like CBUS GPIO.",
