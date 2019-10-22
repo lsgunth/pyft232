@@ -111,11 +111,11 @@ class LibFtdi(io.RawIOBase):
                    PARITY_ODD  : 1,
                    PARITY_EVEN : 2}
 
-    def __init__(self, serial_number=None, description=None, baudrate=9600, bytesize=8, parity='N',
+    def __init__(self, port=None, serial_number=None, description=None, baudrate=9600, bytesize=8, parity='N',
                  stopbits=1, timeout=0, xonxoff=0, rtscts=0,
                  writeTimeout=0):
         self._isopen = False
-        self.snstr = serial_number
+        self.snstr = port or serial_number
         self.descstr = description
 
         self._context = ftdi.ftdi_new()
@@ -125,8 +125,8 @@ class LibFtdi(io.RawIOBase):
         if self._context == 0:
             raise LibFtdiException(self._context)
 
-        if serial_number:
-            serial = c.create_string_buffer(serial_number.encode())
+        if self.snstr:
+            serial = c.create_string_buffer(self.snstr.encode())
             ret = ftdi.ftdi_usb_open_desc(self._context, VENDOR,
                                           PRODUCT, None, serial)
             if ret != 0: raise LibFtdiException(self._context)
