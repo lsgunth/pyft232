@@ -195,6 +195,10 @@ class LibFtdi(io.RawIOBase):
     def __del__(self):
         if ftdi and self._context:
             ftdi.ftdi_free(self._context)
+            self._context = None
+
+    def close(self):
+        self.__del__()
 
     def setBaudrate(self, baudrate):
         """Change the current baudrate."""
