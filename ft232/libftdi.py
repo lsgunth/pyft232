@@ -18,7 +18,6 @@
 
 import io
 import ctypes as c
-import usb
 import serial
 import time
 from serial import (FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS, PARITY_NONE,
@@ -76,6 +75,19 @@ class FtdiContext(c.Structure):
                 ('async_usb_buffer_size', c.c_uint),
                 ('module_detact_mode', c.c_int)]
 
+class LibUsbDevice(c.Structure):
+    pass
+
+class FtdiDeviceList(c.Structure):
+    pass
+FtdiDeviceList._fields_ = [('next', c.POINTER(FtdiDeviceList)),
+                           ('dev', c.POINTER(LibUsbDevice))]
+
+ftdi.ftdi_usb_find_all.argtypes = [c.c_void_p, c.POINTER(c.POINTER(FtdiDeviceList)),
+                                   c.c_int, c.c_int]
+ftdi.ftdi_usb_get_strings.argtypes = [c.c_void_p, c.POINTER(LibUsbDevice),
+                                      c.c_char_p, c.c_int, c.c_char_p, c.c_int,
+                                      c.c_char_p, c.c_int]
 
 class LibFtdiException(Exception):
     def __init__(self, context):
@@ -84,20 +96,40 @@ class LibFtdiException(Exception):
     def __str__(self):
         return self.msg
 
-
 def list_devices():
-    ret = []
-    for bus in usb.busses():
-        for dev in bus.devices:
-            if dev.idVendor == VENDOR and dev.idProduct == PRODUCT:
-                try:
-                    h = dev.open()
-                    serial = h.getString(dev.iSerialNumber, 20)
-                    desc = h.getString(dev.iProduct, 100)
-                    ret.append((serial, desc))
-                except (usb.USBError, ValueError):
-                    pass
-    return ret
+    devices = c.POINTER(FtdiDeviceList)()
+
+    result = []
+
+    ctx = ftdi.ftdi_new()
+    if ctx == 0:
+        raise LibFtdiException(self._context)
+
+    try:
+        ndevs = ftdi.ftdi_usb_find_all(ctx, c.byref(devices), VENDOR, PRODUCT)
+        if ndevs < 0:
+            raise LibFtdiException(self._context)
+
+        d = devices
+        while d:
+            serial = c.create_string_buffer(20)
+            desc = c.create_string_buffer(200)
+            ret = ftdi.ftdi_usb_get_strings(ctx, d[0].dev, None, 0, desc,
+                                            c.sizeof(desc), serial,
+                                            c.sizeof(serial))
+            if ret < 0:
+                raise LibFtdiException(self._context)
+
+            result.append((serial.value.decode(), desc.value.decode()))
+
+            d = d[0].next
+
+    finally:
+        if ndevs >= 0:
+            ftdi.ftdi_list_free(c.byref(devices))
+        ftdi.ftdi_free(ctx)
+
+    return result
 
 class LibFtdi(io.RawIOBase):
     BAUDRATES = (50,75,110,134,150,200,300,600,1200,1800,2400,4800,9600,
