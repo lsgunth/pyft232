@@ -112,11 +112,11 @@ class D2xx(io.RawIOBase):
                    PARITY_ODD  : 1,
                    PARITY_EVEN : 2}
 
-    def __init__(self, serial_number=None, description=None, baudrate=9600, bytesize=8, parity='N',
+    def __init__(self, port=None, serial_number=None, description=None, baudrate=9600, bytesize=8, parity='N',
                  stopbits=1, timeout=10, xonxoff=0, rtscts=0,
                  writeTimeout=10):
         self._isopen = False
-        self.snstr = serial_number
+        self.snstr = port or serial_number
         self.descstr = description
         self.handle = c.c_void_p()
         status = FT_INVALID_PARAMETER
