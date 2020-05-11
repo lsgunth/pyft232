@@ -96,7 +96,7 @@ def list_devices():
                                              desc, c.byref(handle))
         if status != FT_OK: raise D2XXException(status)
 
-        ret.append((serial.value, desc.value))
+        ret.append((serial.value.decode(), desc.value.decode()))
 
     return ret
 
