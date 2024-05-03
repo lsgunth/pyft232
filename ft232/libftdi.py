@@ -23,7 +23,7 @@ import time
 from serial import (FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS, PARITY_NONE,
                     PARITY_EVEN, PARITY_ODD, STOPBITS_ONE, STOPBITS_TWO)
 
-for lib in ("libftdi.so", "libftdi.so.1", "libftdi.dylib", "libftdi.dylib.1"):
+for lib in ("libftdi.so", "libftdi.so.1", "libftdi.dylib", "libftdi.dylib.1", "libftdi1.dylib"):
     try:
         ftdi = c.CDLL(lib)
         break
