@@ -23,12 +23,16 @@ import time
 from serial import (FIVEBITS, SIXBITS, SEVENBITS, EIGHTBITS, PARITY_NONE,
                     PARITY_EVEN, PARITY_ODD, STOPBITS_ONE, STOPBITS_TWO)
 
-for lib in ("libftdi.so", "libftdi.so.1", "libftdi.dylib", "libftdi.dylib.1", "libftdi1.dylib"):
+libftdi_filenames = ["libftdi.so", "libftdi.so.1", "libftdi.dylib", "libftdi.dylib.1", "libftdi1.dylib"]
+
+for lib in libftdi_filenames:
     try:
         ftdi = c.CDLL(lib)
         break
     except OSError:
         continue
+else:
+    raise FileNotFoundError("Unable to load libftdi!  Please make sure it is available as at least one of the following filenames:\n" + "\n".join(libftdi_filenames))
 
 VENDOR = 0x0403
 PRODUCT = 0x6001
